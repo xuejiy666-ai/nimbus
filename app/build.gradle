@@ -33,4 +33,14 @@ android {
             minifyEnabled false
         }
     }
+
+    // 按 ABI 拆包：armeabi-v7a / arm64-v8a / x86 / x86_64 各一个，另出一个全架构合并包
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            universalApk true
+        }
+    }
 }
