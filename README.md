@@ -2,6 +2,12 @@
 
 Android 加固样本的静态脱壳工具。只做一件事：识别加固、把 dex 从容器里取出来、写盘。
 
+## 下载安装
+
+- 已编译的 APK：[Releases](https://github.com/xuejiy666-ai/nimbus/releases/latest) → `Nimbus-1.4-debug.apk`
+- 每次推送 `main` 由 GitHub Actions 自动编译，产物在 Actions 页面的 `nimbus-apk` 附件里
+- 需要：Android 5.0（minSdk 21）及以上，无需 Root
+
 ## 功能范围
 
 - 支持 epic（含 v3 抽离、epic2 配置型）、dpt-shell、百度等常见加固的**静态提取**。
@@ -32,6 +38,10 @@ target_link_libraries(app z dl)
 ```
 
 ## 构建
+
+最省事的是让 GitHub 编译：仓库已带 `.github/workflows/android.yml`，推送 `main` 或手动 Run workflow，几分钟后出 `app-debug.apk`；打 `v*` 标签会自动把 APK 附到 Release。
+
+本地构建：
 
 1. 用 Android Studio / Android Code Studio 打开本目录；
 2. 等待 Gradle Sync（首次会下载 SDK、NDK、CMake）；
