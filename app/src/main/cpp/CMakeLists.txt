@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.18)
+project(nimbus C)
+file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
+add_library(app SHARED ${SRC})
+target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_options(app PRIVATE -include ${CMAKE_CURRENT_SOURCE_DIR}/sc.h)
+target_link_libraries(app z dl)
