@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#F2F2F7</color>
+    <color name="card">#FFFFFF</color>
+    <color name="text_primary">#1C1C1E</color>
+    <color name="text_secondary">#8E8E93</color>
+    <color name="accent">#007AFF</color>
+    <color name="accent_ripple">#33007AFF</color>
+    <color name="fill_secondary">#E9E9EB</color>
+    <color name="fill_secondary_ripple">#33000000</color>
+    <color name="log_bg">#F7F7FA</color>
+</resources>
