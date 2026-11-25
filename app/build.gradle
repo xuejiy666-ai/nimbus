@@ -21,6 +21,18 @@ android {
         }
     }
 
+    def ksPath = System.getenv('ANDROID_KEYSTORE_PATH')
+    signingConfigs {
+        release {
+            if (ksPath) {
+                storeFile file(ksPath)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS') ?: 'nimbus'
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -31,6 +43,8 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            // 有签名环境变量就用正式签名，否则（本地没配置时）退回 debug 签名，保证能出包
+            signingConfig ksPath ? signingConfigs.release : signingConfigs.debug
         }
     }
 
