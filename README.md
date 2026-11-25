@@ -4,9 +4,17 @@ Android 加固样本的静态脱壳工具。只做一件事：识别加固、把
 
 ## 下载安装
 
-- 已编译的 APK：[Releases](https://github.com/xuejiy666-ai/nimbus/releases/latest) → `Nimbus-1.4-debug.apk`
-- 每次推送 `main` 由 GitHub Actions 自动编译，产物在 Actions 页面的 `nimbus-apk` 附件里
-- 需要：Android 5.0（minSdk 21）及以上，无需 Root
+正式版在 [Releases](https://github.com/xuejiy666-ai/nimbus/releases/latest)，按 ABI 拆成 5 个包，同一份证书签名，可互相覆盖安装：
+
+| 文件 | 适用 |
+| --- | --- |
+| `Nimbus-1.4-arm64-v8a.apk` | 绝大多数现在的安卓手机（推荐） |
+| `Nimbus-1.4-armeabi-v7a.apk` | 老机型 / 32 位系统 |
+| `Nimbus-1.4-x86.apk` | x86 模拟器、部分平板 |
+| `Nimbus-1.4-x86_64.apk` | x86_64 模拟器、Chromebook |
+| `Nimbus-1.4-universal.apk` | 不确定设备架构时装它，一定跑得起来，体积最大 |
+
+需要 Android 5.0（minSdk 21）及以上，无需 Root。每次推送 `main` 由 GitHub Actions 自动编译，产物在 Actions 页面 `nimbus-release-apks` 附件里；打 `v*` 标签会把 5 个包一起挂到 Release。
 
 ## 功能范围
 
@@ -19,8 +27,12 @@ Android 加固样本的静态脱壳工具。只做一件事：识别加固、把
 gradlew, gradlew.bat, gradle/wrapper/   自带 Gradle 8.7 wrapper
 app/src/main/
   java/com/mint/toolbox/
-    MainActivity.kt     选取 APK，复制到私有目录后调用原生层
+    MainActivity.kt     选包、复制到私有目录、调原生层、写运行日志、显示输出路径
     Native.kt           声明外部函数并加载 libapp.so
+  res/
+    layout/activity_main.xml   单页浅色界面（输入 / 处理 / 日志 / 输出 四张卡片）
+    values/colors.xml, styles.xml   主题与配色（iOS 浅色）
+    drawable/                    圆角卡片与按钮背景
   cpp/
     sc.h                公共声明（编译期通过 -include 注入，行内不再写 include）
     sc_globals.c        全局变量定义
@@ -39,25 +51,31 @@ target_link_libraries(app z dl)
 
 ## 构建
 
-最省事的是让 GitHub 编译：仓库已带 `.github/workflows/android.yml`，推送 `main` 或手动 Run workflow，几分钟后出 `app-debug.apk`；打 `v*` 标签会自动把 APK 附到 Release。
+最省事的是让 GitHub 编译：仓库已带 `.github/workflows/android.yml`，推送 `main` 或手动 Run workflow，几分钟后出 5 个 release 包；打 `v*` 标签会全部挂到 Release。
+
+签名密钥不进仓库，放在 Actions Secrets：`ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`。没有这些变量时，`release` 会退回 debug 签名，保证本地照样能出包。
 
 本地构建：
 
 1. 用 Android Studio / Android Code Studio 打开本目录；
 2. 等待 Gradle Sync（首次会下载 SDK、NDK、CMake）；
-3. Build → Build APK(s)。
-
-也可以直接用命令行（需要本机有 JDK 17）：
+3. Build → Build APK(s)，或命令行：
 
 ```bash
-./gradlew assembleRelease
+./gradlew assembleRelease    # 输出 app/build/outputs/apk/release/，含 4 个单 ABI 包 + universal 包
 ```
 
 要求：minSdk 21，compileSdk 34，NDK 需带 CMake 与 zlib。
 
 ## 使用
 
-安装后点击按钮选择 APK，处理完成后 dex 位于：
+界面是浅色 iOS 风格的单页：顶部标题，下面依次是「安装包」卡片（选中的文件名与大小）、「处理」卡片（开始处理按钮与进度）、「运行日志」卡片（带时间戳的实时输出）、「输出位置」卡片（处理完成后出现，可复制路径）。
+
+流程：
+
+1. 点「选择安装包」挑一个加固过的 APK；
+2. 点「开始处理」，日志会依次打出复制、调用原生层、返回结果、耗时；
+3. 处理完成后 dex 位于：
 
 ```
 /sdcard/Android/data/com.mint.toolbox/files/Dex/<包名>/classes*.dex
